@@ -11,7 +11,7 @@ O.bodies.append([
    sphere(center=(0,.1,0),radius=.5),#,fixed=True),
    # this particles is free, subject to dynamics
    sphere((0,0,4),.5),
-   utils.wall(-1,axis=2,sense=0)
+   wall(-1,axis=2,sense=0)
 ])
 
 # FUNCTIONAL COMPONENTS
