@@ -1,9 +1,8 @@
 import sys
 
-sys.path.append('/home/simon/Uni/Forschungsprojekt/YadePythonImport')
+sys.path.append('/home/yade/YadePythonImport')
 
-print sys.path
 from yadeimport import *
 
 # Create a sphere object.
-#my_sphere = sphere(center=(0,.1,0))
+my_sphere = sphere(center=(0,.1,0),radius=.5)
