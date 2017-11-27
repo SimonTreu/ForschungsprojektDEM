@@ -57,6 +57,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
     python-sphinx \
     python-tk \
     python-xlib \
+    python-pytest \
     texlive-fonts-recommended \
     texlive-latex-extra \
     texlive-latex-recommended \
@@ -70,6 +71,7 @@ RUN apt-get clean && apt-get update && apt-get install -y \
 # Install yadedayly
 RUN apt-get update && apt-get install -y yadedaily
 # Add symbolic link to yadedaily
-RUN mkdir /home/yade && mkdir /home/yade/YadePythonImport
-RUN ln -s /usr/bin/yadedaily /home/yade/YadePythonImport/yadeimport.py
+RUN mkdir /home/ForschungsprojektDEM
+# RUN mkdir /home/yade && mkdir /home/yade/YadePythonImport
+# RUN ln -s /usr/bin/yadedaily /home/yade/YadePythonImport/yadeimport.py
 # COPY build-yade-package /usr/local/bin/

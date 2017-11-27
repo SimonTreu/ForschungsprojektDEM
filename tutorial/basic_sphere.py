@@ -1,3 +1,4 @@
+from yadeimport import *
 # Create a sphere object. with a radius of .5.
 # This sphere should be fixed and not move
 
@@ -41,3 +42,5 @@ O.dt=.5e-4*PWaveTimeStep() #TODO what is the PWaveTimeStep?
 
 # save the simulation, so that it can be reloaded later, for experimentation
 O.saveTmp() #TODO what exactly dose this do?
+
+print O.bodies

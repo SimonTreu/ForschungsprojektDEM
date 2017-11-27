@@ -39,7 +39,7 @@ def test_create_spheres():
     distance = 2 * radius + .5
     creator = FixedBoundarySpheresCreator(x_range, y_range, z)
     centers = creator.create_centers(distance)
-    spheres = creator.test_create_spheres(centers, radius)
+    spheres = creator.create_spheres(centers, radius)
 
     assert len(spheres) == 9
 

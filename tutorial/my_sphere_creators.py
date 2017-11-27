@@ -1,5 +1,8 @@
+from yadeimport import *
 import numpy as np
-class FixedBoundarySpheresCreator():
+
+
+class FixedBoundarySpheresCreator:
     """
     Function to create spheres with the same radius on a plane
 
@@ -35,5 +38,8 @@ class FixedBoundarySpheresCreator():
 
         return [(x[i],y[i],self.z) for i in range(len(x))]
 
-    def create_spheres(self, centers, radius):
-        pass
+    def create_spheres(self, centers, radius, fixed=False):
+        my_spheres = []
+        for c in centers:
+            my_spheres.append(sphere(center=c, radius=radius, fixed=fixed))
+        return  my_spheres
