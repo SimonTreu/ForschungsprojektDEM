@@ -3,6 +3,7 @@
 # python functions from within the simulation loop
 
 # import yade modules that we will use below
+from yadeimport import *
 from yade import pack, plot
 
 # create rectangular box from facets
