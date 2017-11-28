@@ -46,7 +46,8 @@ class FixedBoundarySpheresCreator:
 
 x_range = [-9, 9]
 y_range = [-9, 9]
-z = 0
+z_range = [-9, 9]
+z = z_range[0]
 radius = .5
 distance = 2 * radius + .3
 creator = FixedBoundarySpheresCreator(x_range, y_range, z)
@@ -62,15 +63,17 @@ for i in range(2,50,2):
     O.bodies.append(my_sphere_free)
 
 
+O.bodies.append(geom.facetBox(center = (0,0,0), extents=(9,9,9),wallMask=15))
+
 O.engines=[
     ForceResetter(), #TODO not shure why we need this
     # Add a "Collider" that approximates if two Objects are interacting
     # InsertionSortCollider dose that using an insertion sort algorithm
-    InsertionSortCollider([Bo1_Sphere_Aabb()]),
+    InsertionSortCollider([Bo1_Sphere_Aabb(),Bo1_Facet_Aabb()]),
     # The Interaction loop is run for all Particles that are approximatet to interact
     # by the Collider
     InteractionLoop(
-        [Ig2_Sphere_Sphere_ScGeom()], # This class Calculates
+        [Ig2_Sphere_Sphere_ScGeom(), Ig2_Facet_Sphere_ScGeom()], # This class Calculates
         # when exactly two spheres collide. We could also add different Classes here if
         # we had different objects in the simulation
         [Ip2_FrictMat_FrictMat_FrictPhys()], # Adds a collition Physics TODO look up what exactly
