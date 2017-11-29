@@ -35,7 +35,7 @@ O.engines=[
     NewtonIntegrator(gravity=(0, 0, -9.81), damping=0.1)
 ]
 
-O.dt=.5e-4*PWaveTimeStep() #TODO what is the PWaveTimeStep?
+O.dt=.5*PWaveTimeStep() #TODO what is the PWaveTimeStep?
 
 # save the simulation, so that it can be reloaded later, for experimentation
 O.saveTmp() #TODO what exactly dose this do?

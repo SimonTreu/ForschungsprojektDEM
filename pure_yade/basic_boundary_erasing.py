@@ -1,4 +1,5 @@
 import numpy as np
+from yade import pack
 
 class FixedBoundarySpheresCreator:
     """
@@ -48,8 +49,9 @@ x_range = [-9, 9]
 y_range = [-9, 9]
 z_range = [-9, 9]
 z = z_range[0]
+
 radius = .5
-distance = 2 * radius + .3
+distance = 2 * radius + .1
 creator = FixedBoundarySpheresCreator(x_range, y_range, z)
 centers = creator.create_centers(distance)
 spheres = creator.create_spheres(centers, radius, fixed=True)
@@ -57,11 +59,16 @@ spheres = creator.create_spheres(centers, radius, fixed=True)
 # Add my own free falling spheres
 indexes = O.bodies.append(spheres)
 
-for i in range(2,50,2):
-    r = np.random.randn()
-    my_sphere_free = sphere(center=(0,r,i),radius=.5,fixed=False, color=(0,1,0))
-    O.bodies.append(my_sphere_free)
+sp=pack.SpherePack()
+# generate randomly spheres with uniform radius distribution
+sp.makeCloud((-8,-8,-8),(8,8,8),rMean=.5,rRelFuzz=.5)
+# add the sphere pack to the simulation
+sp.toSimulation()
 
+# for i in range(2,50,2):
+#     r = np.random.randn()
+#     my_sphere_free = sphere(center=(0,r,i),radius=.5,fixed=False, color=(0,1,0))
+#     O.bodies.append(my_sphere_free)
 
 O.bodies.append(geom.facetBox(center = (0,0,0), extents=(9,9,9),wallMask=15))
 
@@ -84,11 +91,11 @@ O.engines=[
     # It also intruduces a damping factor which acts as a numerical dissipation of
     # energy
     NewtonIntegrator(gravity=(0, 0, -9.81), damping=0.1),
-    PyRunner(command='removeNextSphere()',iterPeriod=250000)
+    PyRunner(command='removeNextSphere()',realPeriod=2)
 ]
 
 
-O.dt=.5e-3*PWaveTimeStep() #TODO what is the PWaveTimeStep?
+O.dt=.5e-2*PWaveTimeStep() #TODO what is the PWaveTimeStep?
 
 # save the simulation, so that it can be reloaded later, for experimentation
 O.saveTmp() #TODO what exactly dose this do?
