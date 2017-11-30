@@ -65,11 +65,6 @@ sp.makeCloud((-8,-8,-8),(8,8,8),rMean=.5,rRelFuzz=.5)
 # add the sphere pack to the simulation
 sp.toSimulation()
 
-# for i in range(2,50,2):
-#     r = np.random.randn()
-#     my_sphere_free = sphere(center=(0,r,i),radius=.5,fixed=False, color=(0,1,0))
-#     O.bodies.append(my_sphere_free)
-
 O.bodies.append(geom.facetBox(center = (0,0,0), extents=(9,9,9),wallMask=15))
 
 O.engines=[
