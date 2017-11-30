@@ -12,9 +12,11 @@ def test_selects_spheres_in_circle():
     for c in centers:
         spheres.append(sphere(center=c, radius=radius, fixed=True))
 
-    spheres_in_circle = [spheres[i] for i in [1, 3, 4, 5, 7]]
-    m_spheres_in_cirlce = select_spheres_in_circle_on_plane(spheres=spheres, center=(0,0,z), radius=1.5)
-    assert set(m_spheres_in_cirlce) == set(spheres_in_circle)
+    spheres_in_bsphere = [spheres[i] for i in [1, 3, 4, 5, 7]]
+    spheres_outside_bsphere = [spheres[i] for i in [0,2,6,8]]
+    m_spheres_in_bsphere, m_spheres_outside_bsphere = select_spheres_in_circle_on_plane(spheres=spheres, center=(0,0,z), radius=1.5)
+    assert set(m_spheres_in_bsphere) == set(spheres_in_bsphere)
+    assert set(m_spheres_outside_bsphere) == set(spheres_outside_bsphere)
 
 def test_selects_spheres_in_circle_not_at_center():
     z = 0
@@ -28,9 +30,11 @@ def test_selects_spheres_in_circle_not_at_center():
     for c in centers:
         spheres.append(sphere(center=c, radius=radius, fixed=True))
 
-    spheres_in_circle = [spheres[i] for i in [4, 6, 7, 8]]
+    spheres_in_bsphere = [spheres[i] for i in [4, 6, 7, 8]]
+    spheres_outside_bsphere = [spheres[i] for i in [0, 1, 2, 3, 5]]
 
-    m_spheres_in_cirlce = select_spheres_in_circle_on_plane(spheres=spheres,
-                                                            center=(1.5,0,z), radius=1.5)
+    m_spheres_in_bsphere, m_spheres_outside_bsphere = select_spheres_in_circle_on_plane(spheres=spheres,
+                                                            center=(1.5, 0, z), radius=1.5)
 
-    assert set(m_spheres_in_cirlce) == set(spheres_in_circle)
+    assert set(m_spheres_in_bsphere) == set(spheres_in_bsphere)
+    assert set(m_spheres_outside_bsphere) == set(spheres_outside_bsphere)
