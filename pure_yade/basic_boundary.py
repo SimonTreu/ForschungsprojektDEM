@@ -1,5 +1,11 @@
 import numpy as np
 
+########################
+###  Importet Class  ###
+########################
+
+#  The following class is a hard copy from /pure_python. Please don't change it also there and then copy the changed class here
+# Regular python import statement was not used, as yade couldn't find the imported classes
 class FixedBoundarySpheresCreator:
     """
     Function to create spheres with the same radius on a plane
@@ -42,7 +48,13 @@ class FixedBoundarySpheresCreator:
             my_spheres.append(sphere(center=c, radius=radius, fixed=fixed))
         return  my_spheres
 
-# Add the boundary conditions
+#####################
+###  Yade Script  ###
+#####################
+
+# ------------------------------------- #
+# --  creating bottom layer spheres  -- #
+# ------------------------------------- #
 
 x_range = [-3, 3]
 y_range = [-3, 3]
