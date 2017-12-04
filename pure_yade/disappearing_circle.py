@@ -113,13 +113,22 @@ O.bodies.append(geom.facetBox(center=(0, 0, 0), extents=(9, 9, 9), wallMask=15))
 #--  filling the box --#
 #----------------------#
 
-#Generate loose spheres as granular material
-sp = pack.SpherePack()
-# generate randomly spheres with uniform radius distribution
-sp.makeCloud((-8, -8, -8), (8, 8, 8), rMean=.4, rRelFuzz=.5)
-# add the sphere pack to the simulation
-sp.toSimulation(color=(.5, .3, 0))
+#Specify material
+#idSteel=O.materials.append(FrictMat(young=210e9,poisson=.25,frictionAngle=.8,label="steel"))
 
+#Generate loose spheres as granular material
+#sp = pack.SpherePack()
+# sp = pack.
+# # generate randomly spheres with uniform radius distribution
+# sp.makeCloud((-8, -8, -8), (8, 8, 8), rMean=.4, rRelFuzz=.5, porosity=0.05)
+# # add the sphere pack to the simulation
+# sp.toSimulation(color=(.5, .3, 0))
+
+#####
+idConcrete=O.materials.append(FrictMat(young=30e9,poisson=.2,frictionAngle=.6,label="concrete"))
+pred=pack.inAlignedBox(minAABB=(-9,-9,-8), maxAABB=(9,9,0))
+spheres=pack.randomDensePack(pred, radius=.5, rRelFuzz=.8,  returnSpherePack=True, spheresInCell=300, material=idConcrete)
+spheres.toSimulation(color=(.5, .3, 0))
 #-----------------------#
 #--  Add the engines  --#
 #-----------------------#
