@@ -1,19 +1,20 @@
 from yade import plot, pack, utils, ymport
 
 #### controling parameters
-packing='data/alignedBox_4_processed'
+packing='data/alignedBox_15'
 smoothContact = True
 jointFrict = radians(20)
 jointDil = radians(0)
-output = 'data/jointDip30_jointFrict20'
+output = 'data/alignedBox_15'
 maxIter = 10000
 
 
 #### Import of the sphere assembly
+frictLessMat = O.materials.append(JCFpmMat(type=0,young=1e8,frictionAngle=radians(30),poisson=0.3,density=3000))
+
+print frictLessMat
 def sphereMat(): return JCFpmMat(type=1, young=1e8, frictionAngle=radians(30), density=3000, poisson=0.3,
-                                 tensileStrength=1.1e4, cohesion=1e5, jointNormalStiffness=1e7, jointShearStiffness=1e7,
-                                 jointCohesion=1e6, jointFrictionAngle=jointFrict,
-                                 jointDilationAngle=jointDil)  ## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
+                                 tensileStrength=3e4, cohesion=1e5)  ## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
 
 
 O.bodies.append(ymport.text(packing + '.spheres', scale=1., shift=Vector3(0, 0, 0), material=sphereMat))
@@ -43,31 +44,8 @@ for o in O.bodies:
             Rmax = o.shape.radius
 Rmean = R / numSpheres
 
-#### Identification of the spheres on joint (some DIY here!) -> work to do on import function textExt to directly load material properties from the ascii file
-inFile = open(packing + '_jointedPM.spheres', 'r')
-for line in inFile:
-    if '#' in line: continue
-    id = int(line.split()[0])
-    onJ = int(line.split()[1])
-    nj = int(line.split()[2])
-    j11 = float(line.split()[3])
-    j12 = float(line.split()[4])
-    j13 = float(line.split()[5])
-    j21 = float(line.split()[6])
-    j22 = float(line.split()[7])
-    j23 = float(line.split()[8])
-    j31 = float(line.split()[9])
-    j32 = float(line.split()[10])
-    j33 = float(line.split()[11])
-    O.bodies[id].state.onJoint = onJ
-    O.bodies[id].state.joint = nj
-    O.bodies[id].state.jointNormal1 = (j11, j12, j13)
-    O.bodies[id].state.jointNormal2 = (j21, j22, j23)
-    O.bodies[id].state.jointNormal3 = (j31, j32, j33)
-inFile.close
-
 #### Boundary conditions
-e = 2 * Rmean
+e = 1.5 * Rmean
 Xmax = 0
 Ymax = 0
 baseBodies = []
@@ -75,19 +53,27 @@ baseBodies = []
 for o in O.bodies:
     if isinstance(o.shape, Sphere):
         o.shape.color = (0.9, 0.8, 0.6)
-        ## to fix boundary particles on ground
+        ## to fix boundary particles
         if o.state.pos[1] < (yinf + 2 * e):
             o.state.blockedDOFs += 'xyz'
             baseBodies.append(o.id)
             o.shape.color = (1, 1, 1)
-        if o.state.pos[1] > (ysup - 2 * e):
+        elif o.state.pos[1] > (ysup - 2 * e):
             o.state.blockedDOFs += 'xyz'
             baseBodies.append(o.id)
             o.shape.color = (1, 1, 1)
-        if o.state.pos[0] < (xinf + 2 * e):
+        elif o.state.pos[0] < (xinf + 2 * e):
             o.state.blockedDOFs += 'xyz'
             baseBodies.append(o.id)
             o.shape.color = (1, 1, 1)
+        elif o.state.pos[0] > (xsup - 2 * e):
+            o.state.blockedDOFs += 'xyz'
+            baseBodies.append(o.id)
+            o.shape.color = (1, 1, 1)
+            o.shape.wire = True
+        elif o.state.pos[2] > (zsup - 6):
+            o.mat = O.materials[frictLessMat]
+            o.shape.color = (1, 0, .1)
 
 baseBodies = tuple(baseBodies)
 
@@ -103,47 +89,16 @@ O.engines = [
         [Law2_ScGeom_JCFpmPhys_JointedCohesiveFrictionalPM(smoothJoint=smoothContact, label='interactionLaw')]
     ),
     GlobalStiffnessTimeStepper(timestepSafetyCoefficient=0.8),
-    PyRunner(iterPeriod=1000, initRun=False, command='jointStrengthDegradation()'),
-    VTKRecorder(iterPeriod=5000, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
-    PyRunner(iterPeriod=10, initRun=True, command='dataCollector()'),
+    VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
     NewtonIntegrator(damping=0.7, gravity=(0., 0., -9.82)),
 
 ]
 
-#### dataCollector
-plot.plots = {'iterations': ('p',)}
-
-
-def dataCollector():
-    R = O.bodies[refPoint]
-    plot.addData(v=R.state.vel[1], p=R.state.pos[1] - p0, iterations=O.iter, t=O.realtime)
-    plot.saveDataTxt(output)
-
-
-#### joint strength degradation
-stableIter = 2000
-stableVel = 0.001
-degrade = True
-
-
-def jointStrengthDegradation():
-    global degrade
-    if degrade and O.iter >= stableIter and abs(O.bodies[refPoint].state.vel[1]) < stableVel:
-        print '!joint cohesion total degradation!', ' | iteration=', O.iter
-        degrade = False
-        for i in O.interactions:
-            if i.phys.isOnJoint:
-                if i.phys.isCohesive:
-                    i.phys.isCohesive = False
-                    i.phys.FnMax = 0.
-                    i.phys.FsMax = 0.
-
-
 #### YADE windows
 from yade import qt
 
-v = qt.Controller()
-v = qt.View()
+qt.Controller()
+qt.View()
 
 #### time step definition (low here to create cohesive links without big changes in the assembly)
 O.dt = 0.1 * utils.PWaveTimeStep()
@@ -157,7 +112,7 @@ is2aabb.aabbEnlargeFactor = -1.
 # O.engines=O.engines[:1]+O.engines[3:]
 
 #### RUN!!!
-O.dt = -0.1 * utils.PWaveTimeStep()
+O.dt = 0.1*utils.PWaveTimeStep()
 
 #O.run(maxIter)
 #plot.plot()
