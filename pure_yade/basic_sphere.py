@@ -1,7 +1,3 @@
-from yadeimport import *
-
-output = 'data/basic_sphere'
-
 # Create a sphere object. with a radius of .5.
 # This sphere should be fixed and not move
 my_sphere = sphere(center=(0,0,0),radius=.5,fixed=True)
@@ -33,13 +29,10 @@ O.engines=[
     # Applies all calculated forces and gravity to the particles
     # It also intruduces a damping factor which acts as a numerical dissipation of
     # energy
-    VTKRecorder(iterPeriod=800, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity']),
     NewtonIntegrator(gravity=(0, 0, -9.81), damping=0.1)
 ]
 
 # now we can set the timestep for our simulation. There is a critical value
 # given with PWaveTimeStep(). The timestep should not be larger than this value
 # you can experiment with the timestep and see what happens
-O.dt=0.1*PWaveTimeStep()
-
-O.run(10000)
+O.dt=1e-4*PWaveTimeStep()
