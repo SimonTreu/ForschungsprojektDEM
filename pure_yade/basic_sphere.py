@@ -13,7 +13,7 @@ O.bodies.append([my_sphere, my_sphere_free])
 # Set up the simulation loop to add physical properties
 
 O.engines=[
-    ForceResetter(), #TODO not shure why we need this
+    ForceResetter(),
     # Add a "Collider" that approximates if two Objects are interacting
     # InsertionSortCollider dose that using an insertion sort algorithm
     InsertionSortCollider([Bo1_Sphere_Aabb()]),

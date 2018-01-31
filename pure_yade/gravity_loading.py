@@ -1,4 +1,11 @@
 from yade import plot, pack, utils, ymport
+import numpy as np
+
+def is_inside_sphere(center, r, point):
+    c = np.array(point)
+    c -= center
+    return np.linalg.norm(c) <= r
+
 
 #### controling parameters
 packing='data/alignedBox_15'
@@ -14,7 +21,7 @@ frictLessMat = O.materials.append(JCFpmMat(type=0,young=1e8,frictionAngle=radian
 
 print frictLessMat
 def sphereMat(): return JCFpmMat(type=1, young=1e8, frictionAngle=radians(30), density=3000, poisson=0.3,
-                                 tensileStrength=3e4, cohesion=1e5)  ## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
+                                 tensileStrength=3.5e4, cohesion=1e5)  ## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
 
 
 O.bodies.append(ymport.text(packing + '.spheres', scale=1., shift=Vector3(0, 0, 0), material=sphereMat))
@@ -49,6 +56,7 @@ e = 1.5 * Rmean
 Xmax = 0
 Ymax = 0
 baseBodies = []
+removableSpheres=[]
 
 for o in O.bodies:
     if isinstance(o.shape, Sphere):
@@ -75,6 +83,11 @@ for o in O.bodies:
             o.mat = O.materials[frictLessMat]
             o.shape.color = (1, 0, .1)
 
+        if is_inside_sphere(center=(0,0,-4),r=2,point=o.state.pos):
+            o.shape.color = (.2, .8, .1)
+            removableSpheres.append(o.id)
+
+
 baseBodies = tuple(baseBodies)
 
 #### Engines definition
@@ -89,10 +102,19 @@ O.engines = [
         [Law2_ScGeom_JCFpmPhys_JointedCohesiveFrictionalPM(smoothJoint=smoothContact, label='interactionLaw')]
     ),
     GlobalStiffnessTimeStepper(timestepSafetyCoefficient=0.8),
-    VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
+    #VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
+    PyRunner(command='removeNextSphere()', iterPeriod=500),
+
     NewtonIntegrator(damping=0.7, gravity=(0., 0., -9.82)),
 
 ]
+
+def removeNextSphere():
+    n = len(removableSpheres)
+    if n > 0:
+        r = np.random.randint(n)
+        id = removableSpheres.pop(r)
+        O.bodies.erase(id)
 
 #### YADE windows
 from yade import qt
@@ -101,18 +123,13 @@ qt.Controller()
 qt.View()
 
 #### time step definition (low here to create cohesive links without big changes in the assembly)
-O.dt = 0.1 * utils.PWaveTimeStep()
+O.dt = 0.5 * utils.PWaveTimeStep()
 
 #### set cohesive links with interaction radius>=1
 O.step();
 #### initializes now the interaction detection factor to strictly 1
 ss2d3dg.interactionDetectionFactor = -1.
 is2aabb.aabbEnlargeFactor = -1.
-#### if you want to avoid contact detection (Lattice like)
-# O.engines=O.engines[:1]+O.engines[3:]
 
 #### RUN!!!
 O.dt = 0.1*utils.PWaveTimeStep()
-
-#O.run(maxIter)
-#plot.plot()
