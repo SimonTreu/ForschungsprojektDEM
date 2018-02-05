@@ -1,10 +1,30 @@
 # Protocol of the research project
 
+## Project Structure
+
+### `/source`
+This folder contains all Yade scripts. In `/basic_examples` are 
+scripts that should help to understand the basics of yade. `/sinkhole_model` contains
+contains two scripts to demonstrate a simple sinkhole model
+### `/data`
+No files in this folder are committed to git. It should contain 
+any files created by a yade script (Specific element-ensembles or
+trajectory files for postprocessing)
+### `/docker`
+dockerfile to compile yade in a docker container. It installs all
+dependencies do compile yade. If you install yade as package (see yade doc)
+you would not need this
+
 ## Installation
 
-I decided to install Yade via the yadedaily packet. I simply followed the official documentation to install it on my Linux Mint 17.02 system (Ubuntu 14.04 based)
+To install yade on a ubuntu system follow the instructions on 
+[yadehomepage](https://yade-dem.org/doc/installation.html).
+If you want/need to compile yade on your own machine
+i would recommend to use a docker container. You could use 
+`docker/dockerfile` for that.
 
 ## Understanding Yade
+
 
 ### About the example: "gravity deposition"
 
