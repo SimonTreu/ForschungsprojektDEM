@@ -25,8 +25,33 @@ i would recommend to use a docker container. You could use
 
 ## Understanding Yade
 
+### External Documentation Sources
 
-### About the example: "gravity deposition"
+The documentation you are reading here is mainly based on documentation documents you can
+find on the [yade website](https://yade-dem.org/doc/). To get a html document containing all
+different documentation files go to [Full contents](https://yade-dem.org/doc/index-toctree.html).
+
+### Basic Example
+
+#### Basic Sphere
+
+the file `source/basic_example/basic_sphere` is a minimalistic YADE script. The building blocks of 
+a simulations are:
+
+1. Add material properties for particles to simulation [as described here](https://yade-dem.org/doc/user.html#defining-materials)
+    * if no material is defined,
+    [default material properties](https://yade-dem.org/doc/yade.utils.html?highlight=defaultmaterial#yade.utils.defaultMaterial)
+     are used for all particles.
+    * if only one material is added it is used for all particles.
+    * if multiple materials are added to the simulation they can be assigned to particles
+    by the id, which is returned by `O.materials.append(...)` 
+2. Define particles (here two spheres)
+    * the module [utils](https://yade-dem.org/doc/yade.utils.html) contains 
+    several helper functions to create particles of different shapes and types.
+    The most commonly used one is the 
+    [sphere creator](https://yade-dem.org/doc/yade.utils.html#yade.utils.sphere)
+    *  
+
 
 #### FAQ
 
@@ -43,9 +68,5 @@ i would recommend to use a docker container. You could use
 	* [docu](https://yade-dem.org/doc/yade.wrapper.html#yade.wrapper.Collider)
 
 * What is an Aabb (Axis-aligned bounding box)?
-	* It is a box around a given object. To check if to objects collide, it is first checked if those boxes are touching, if yes a IGeomFunctor checks if the more complicated object collide.
+	* It is a box around a given object. To check if to objects collide, it is first checked if those boxes are touching, if yes a IGeomFunctor checks if the more complicated objects collide.
 
-* What is an InteractionLoop()?
-	* 
-
-* What is vnoremap <C-c> "
