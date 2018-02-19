@@ -8,12 +8,12 @@ def is_inside_sphere(center, r, point):
 
 
 #### controling parameters
-packing='data/alignedBox_15'
+packing='../../data/alignedBox_15'
 smoothContact = True
 jointFrict = radians(20)
 jointDil = radians(0)
-output = 'data/alignedBox_15'
-maxIter = 10000
+output = '../../data/alignedBox_15'
+maxIter = 5000
 
 
 #### Import of the sphere assembly
@@ -102,8 +102,8 @@ O.engines = [
         [Law2_ScGeom_JCFpmPhys_JointedCohesiveFrictionalPM(smoothJoint=smoothContact, label='interactionLaw')]
     ),
     GlobalStiffnessTimeStepper(timestepSafetyCoefficient=0.8),
-    #VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
-    PyRunner(command='removeNextSphere()', iterPeriod=500),
+    VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
+    PyRunner(command='removeNextSphere()',  virtPeriod=0.1),
 
     NewtonIntegrator(damping=0.7, gravity=(0., 0., -9.82)),
 
@@ -133,3 +133,4 @@ is2aabb.aabbEnlargeFactor = -1.
 
 #### RUN!!!
 O.dt = 0.1*utils.PWaveTimeStep()
+O.run(maxIter)
