@@ -52,7 +52,7 @@ A good way of finding out how to do more difficult tasks (such as sinkhole simul
 approach: 
     1. Find related posts in the [forum](https://answers.launchpad.net/yade)
     2. Check the documentation of mentioned functions (Quicksearch on [yade website](https://yade-dem.org/doc/) works quite well for that)
-    3. Find publications where those functions are used (or even developed) [yade related publications](https://yade-dem.org/doc/references.html). 
+    3. Find publications where those functions are used (or even developed) [yade related publications](https://yade-dem.org/doc/publications.html). 
     4. Search the forum again for posts related to the functions you might want to use.
     5. Check out [examples on github](https://github.com/yade/trunk/tree/master/examples).
 
@@ -89,7 +89,7 @@ a simulations are:
  
  ####  Sinkhole Model
  This model is an adaption of the model given in this [example on github](https://github.com/yade/trunk/tree/master/examples/jointedCohesiveFrictionalPM).
- The readmee mentions several related publications (artong2012a, Scholtes2012, Scholtes2013, Duriez2016 [see references](https://yade-dem.org/doc/references.html))
+ The readmee mentions several related publications (artong2012a, Scholtes2012, Scholtes2013, Duriez2016 [see references](https://yade-dem.org/doc/publications.html))
  As those authors also implemented a lot of the used functions it is recommended to refer to those
  publications for a detailed explanation. The aim of this model is to implement a model that contains
  a box of fixed spheres as boundary condition. (only the side walls are fixed). A layer of cohesive
@@ -99,10 +99,51 @@ a simulations are:
  Every 0.1 second of virtual time we remove a sphere from the center of the solid material. After some 
  time parts of the solid material will break and free the loose material on top.
  
- ##### packing_in_quader.py
+ ##### packing_in_cuboid.py
+ 
+ Here we create a packing of spheres in a cuboid (put as many spheres
+ into that cuboid). This pack of spheres will be the bases for our model.
+ it is saved in the /data directory with the filename starting with alignedBox. 
+ This file can be used in a different simulation. With that method it is
+ possible to base different kind of simulations on the same sphere packing
+ or use different sphere packings for the same simulation.
  
  ##### sinkhole.py
 
+The first important thing here is the definition of material properties. We have on Material called
+nonCohesiveMaterial for the loose spheres and one cohesive material property for the spheres representing
+solid stone. When we load the spheres from the packing created with `pycking_in_cuboid.py` we first
+assign all spheres with the cohesive material. But then we check which spheres lie outside the boundary
+conditions and assign the nonCohesive material to it.
+
+Secondly some spheres are selected for removal during the simulation.
+    
+        PyRunner(command='removeNextSphere()',  virtPeriod=0.1),
+
+within the interaction loop arbitrarily selects one of those spheres for removal every 0.1 seconds
+of virtual time (simulated time and not the real time the simulation takes).
+
+The variable `interactionRadius` can be set to values larger than one. If you do so, then the initial
+cohesive links will be also applied to particles that are close by and not only if they are touching.
+Higher values of the `interactionRadius` correspond to a harder material. Please read 
+[Scholtes2013](https://www.sciencedirect.com/science/article/pii/S0022509612002268) for further 
+explanation of that method.
+
+Cohesive links are only set up in the first step of the simulation. After that the interaction
+detection factor (which made it possible to stick particles together that are not directly touching)
+is reset to one. 
+
+    O.step();
+    #### initializes now the interaction detection factor to strictly 1
+    ss2d3dg.interactionDetectionFactor = -1.
+    is2aabb.aabbEnlargeFactor = -1.
+
+
+#### VTK Recorder (saving trajectories)
+    
+It is possible to save trajectories of the simulation at some rate (for example every 500th iteration).
+[yade docu](https://yade-dem.org/doc/yade.export.html). For a explanation on how to 
+visualize such trajectories you may refer to the [official vtk website](https://www.vtk.org/)
 
 #### FAQ
 

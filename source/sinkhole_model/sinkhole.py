@@ -16,14 +16,15 @@ output = '../../data/alignedBox_15'
 maxIter = 5000
 
 
-#### Import of the sphere assembly
-frictLessMat = O.materials.append(JCFpmMat(type=0,young=1e8,frictionAngle=radians(30),poisson=0.3,density=3000))
+#### define materials. One for loose particles and one for solid rock
+nonCohesive = O.materials.append(JCFpmMat(type=0, young=1e8, frictionAngle=radians(30), poisson=0.3, density=3000))
 
-print frictLessMat
+
 def sphereMat(): return JCFpmMat(type=1, young=1e8, frictionAngle=radians(30), density=3000, poisson=0.3,
-                                 tensileStrength=3.5e4, cohesion=1e5)  ## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
+                                 tensileStrength=3.5e4, cohesion=1e5)
+## Rq: density needs to be adapted as porosity of real rock is different to granular assembly due to difference in porosity (utils.sumForces(baseBodies,(0,1,0))/(Z*X) should be equal to Gamma*g*h with h=Y, g=9.82 and Gamma=2700 kg/m3
 
-
+#### Import of the sphere assembly and assign the cohesive material property
 O.bodies.append(ymport.text(packing + '.spheres', scale=1., shift=Vector3(0, 0, 0), material=sphereMat))
 
 ## preprocessing to get dimensions of the packing
@@ -79,10 +80,12 @@ for o in O.bodies:
             baseBodies.append(o.id)
             o.shape.color = (1, 1, 1)
             o.shape.wire = True
+        #### assign nonCohesive material to all "loose spheres" inside the cuboid.
         elif o.state.pos[2] > (zsup - 6):
-            o.mat = O.materials[frictLessMat]
+            o.mat = O.materials[nonCohesive]
             o.shape.color = (1, 0, .1)
 
+        #### specify spheres that will be removed one by one threw out the simulation
         if is_inside_sphere(center=(0,0,-4),r=2,point=o.state.pos):
             o.shape.color = (.2, .8, .1)
             removableSpheres.append(o.id)
@@ -102,7 +105,7 @@ O.engines = [
         [Law2_ScGeom_JCFpmPhys_JointedCohesiveFrictionalPM(smoothJoint=smoothContact, label='interactionLaw')]
     ),
     GlobalStiffnessTimeStepper(timestepSafetyCoefficient=0.8),
-    VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
+    # VTKRecorder(iterPeriod=500, initRun=True, fileName=(output + '-'), recorders=['spheres', 'velocity', 'intr']),
     PyRunner(command='removeNextSphere()',  virtPeriod=0.1),
 
     NewtonIntegrator(damping=0.7, gravity=(0., 0., -9.82)),
